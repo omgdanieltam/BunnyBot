@@ -64,7 +64,7 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// awwnime (test)
 	if message == "awwnime" {
-		s.ChannelMessageSend(m.ChannelID, get_redditbooru("awwnime"))
+		s.ChannelMessageSend(m.ChannelID, get_redditbooru_image("awwnime"))
 	}
 
 	//get_redditbooru("awwnime")
