@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -49,22 +50,23 @@ func main() {
 }
 
 func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
-	
-	// ignore messages by the bot
-	if m.Author.ID == s.State.User.ID {
-		return
+
+	// make sure we match our bot's message token
+	if len(m.Content) > 2 {
+		input_token := m.Content[0:2]
+		if strings.ToLower(string(input_token)) != "t." {
+			return
+		}
 	}
 
-	// ping
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+	// get our message without our bot's token
+	message := m.Content[2:]
+
+	// awwnime (test)
+	if message == "awwnime" {
+		s.ChannelMessageSend(m.ChannelID, get_redditbooru("awwnime"))
 	}
 
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
-
-	
 	//get_redditbooru("awwnime")
 
 }
