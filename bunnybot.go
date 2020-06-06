@@ -1,28 +1,33 @@
 package main
 
 import (
-	"flag"
+	//"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"strings"
+	"io/ioutil"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/buger/jsonparser"
 )
-
-var (
-	Token string
-)
-
-func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
-}
 
 func main() {
+	// read auth file
+	auth, err := ioutil.ReadFile("auth.json")
+	if err != nil {
+		panic(err)
+	}
+
+	// get our discord token
+	token,err := jsonparser.GetString(auth, "[0]", "token")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	// create Discord session
-	dg, err := discordgo.New("Bot " + Token)
+	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		fmt.Println("Error creating Discord session, ", err)
 		return
