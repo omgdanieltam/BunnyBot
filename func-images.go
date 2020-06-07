@@ -1,5 +1,5 @@
 /*
-This contains our functions used for image searches"
+This contains our functions used for image searches
 */
 
 package main
@@ -29,35 +29,45 @@ func getArrayLen(value []byte) (int, error) {
 }
 
 // redditbooru request
-func get_redditbooru_image(sub string) string{
-	// create the proper url with the subreddit
-	url := "https://" + sub + ".redditbooru.com/images/?limit=1000"
+func get_redditbooru_image(sub string) <-chan string{
+	// make the channel
+	ret := make(chan string)
 
-	// set 5 second timeout on request
-	client := http.Client {
-		Timeout: 5 * time.Second,
-	}
+	go func() {
+		defer close(ret)
 
-	// get the content of the page
-	resp, err := client.Get(url)
-	defer resp.Body.Close()
+		// create the proper url with the subreddit
+		url := "https://" + sub + ".redditbooru.com/images/?limit=1000"
 
-	// read response
-	out, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
+		// set 5 second timeout on request
+		client := http.Client {
+			Timeout: 5 * time.Second,
+		}
 
-	// randomize the seed
-	rand.Seed(time.Now().UnixNano())
+		// get the content of the page
+		resp, err := client.Get(url)
+		defer resp.Body.Close()
 
-	// get a random number for the image
-	outlen,err := getArrayLen(out)
-	random_img := rand.Intn(outlen)
+		// read response
+		out, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(err)
+		}
 
-	// select a random url from our list
-	img_url,err := jsonparser.GetString(out, "[" + strconv.Itoa(random_img) + "]", "cdnUrl")
+		// randomize the seed
+		rand.Seed(time.Now().UnixNano())
 
-	return img_url
+		// get a random number for the image
+		outlen,err := getArrayLen(out)
+		random_img := rand.Intn(outlen)
+
+		// select a random url from our list
+		img_url,err := jsonparser.GetString(out, "[" + strconv.Itoa(random_img) + "]", "cdnUrl")
+
+		// set the return value
+		ret <- img_url
+		}()
+
+	return ret
 
 }
