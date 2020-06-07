@@ -52,6 +52,7 @@ func get_redditbooru_image(sub string) <-chan string{
 		out, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading response from redditbooru, ", err)
+			return
 		}
 
 		// randomize the seed for the random int
@@ -98,7 +99,8 @@ func get_imgur_image(sub string) <-chan string {
 		// read response
 		out, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			panic(err)
+			fmt.Println("Error reading response from imgur, ", err)
+			return
 		}
 
 		// randomize the seed for the random int
@@ -144,6 +146,7 @@ func get_subreddit_image(sub string) <-chan string {
 		out, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			fmt.Println("Error reading response from reddit, ", err)
+			return
 		}
 
 		// randomize the seed for the random int
