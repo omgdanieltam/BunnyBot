@@ -54,7 +54,7 @@ func get_redditbooru_image(sub string) <-chan string{
 			panic(err)
 		}
 
-		// randomize the seed
+		// randomize the seed for the random int
 		rand.Seed(time.Now().UnixNano())
 
 		// get a random number for the image
@@ -67,6 +67,53 @@ func get_redditbooru_image(sub string) <-chan string{
 		// set the return value
 		ret <- img_url
 		}()
+
+	return ret
+}
+
+// imgur request
+func get_imgur_image(sub string) <-chan string {
+	// make channel
+	ret := make(chan string)
+
+	go func() {
+		defer close(ret)
+
+		// create the proper url with the subreddit
+		url := "https://api.imgur.com/3/gallery/r/" + sub + "/time/1"
+
+		// set 5 second timeout on request
+		client := http.Client {
+			Timeout: 5 * time.Second,
+		}
+
+		// create the request
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Add("Authorization", "Client-ID " + auth.imgur)
+
+		// get the content of the page
+		resp, err := client.Do(req)
+		defer resp.Body.Close()
+
+		// read response
+		out, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(err)
+		}
+
+		// randomize the seed for the random int
+		rand.Seed(time.Now().UnixNano())
+
+		// get a random number for the image
+		//outlen, _ := getArrayLen(out)
+		//random_img := rand.Intn(outlen)
+
+		// parse the data (fix this)
+		img_url, _ := jsonparser.GetString(out, "[0]", "[0]", "link")
+		fmt.Println(string(img_url))
+
+		ret <- ""
+	}()
 
 	return ret
 
