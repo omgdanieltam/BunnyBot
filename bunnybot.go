@@ -1,33 +1,27 @@
 package main
 
 import (
-	//"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"strings"
-	"io/ioutil"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/buger/jsonparser"
 )
 
+var (
+	auth Auth
+)
+
+func init() {
+	// build the authentication struct
+	buildAuth()
+}
+
 func main() {
-	// read auth file
-	auth, err := ioutil.ReadFile("auth.json")
-	if err != nil {
-		panic(err)
-	}
-
-	// get our discord token
-	token,err := jsonparser.GetString(auth, "[0]", "token")
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	// create Discord session
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + auth.discord)
 	if err != nil {
 		fmt.Println("Error creating Discord session, ", err)
 		return
