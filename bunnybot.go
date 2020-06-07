@@ -64,7 +64,7 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 	// awwnime (test)
 	if message == "awwnime" {
 		// get url
-		url := <-get_imgur_image("awwnime")
+		url := <-get_subreddit_image("awwnime")
 
 		// print message with url
 		s.ChannelMessageSend(m.ChannelID, url)
