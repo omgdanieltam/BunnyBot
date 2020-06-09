@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/buger/jsonparser"
 )
@@ -26,6 +27,62 @@ func getArrayLen(value []byte) (int, error) {
 		return 0, fmt.Errorf("getArrayLen ArrayEach error: %v", err)
 	}
 	return ret, nil
+}
+
+//  get the length of object for our parser
+func getObjectLen(value []byte) (int, error) {
+	ret := 0
+	objectCallback := func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
+		ret++
+		return nil
+	}
+
+	if err := jsonparser.ObjectEach(value, objectCallback); err != nil {
+		return 0, fmt.Errorf("getObjectLen ObjectEach error: %v", err)
+	}
+
+	return ret, nil
+}
+
+// build our sources list for redditbooru
+func build_redditbooru_sources() {
+	// the url for the sources from redditbooru
+	url := "https://redditbooru.com/sources/"
+
+	// set 5 second timeout on request
+	client := http.Client {
+		Timeout: 5 * time.Second,
+	}
+
+	// get the content of the page
+	resp, err := client.Get(url)
+	if err != nil {
+		fmt.Print("Error getting redditbooru sources, ")
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// read response
+	out, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Print("Error reading response from redditbooru, ")
+		panic(err)
+	}
+
+	// get the length of the sources
+	outlen, err := getArrayLen(out)
+
+	// set our slice to the appropriate size
+	redditbooru_sources = make([]string, outlen)
+
+	// set our sources into the slice
+	for i := 0; i < outlen; i++ {
+		// pull out the title
+		title,_ := jsonparser.GetString(out, "[" + strconv.Itoa(i) + "]", "title")
+
+		// set to lowercase then into our slice
+		redditbooru_sources[i] = strings.ToLower(title)
+	}
 }
 
 // redditbooru request

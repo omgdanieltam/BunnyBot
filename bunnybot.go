@@ -12,11 +12,15 @@ import (
 
 var (
 	auth Auth
+	redditbooru_sources []string
 )
 
 func init() {
 	// build the authentication struct
 	buildAuth()
+
+	// build the redditbooru sources slice
+	build_redditbooru_sources()
 }
 
 func main() {
