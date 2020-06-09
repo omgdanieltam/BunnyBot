@@ -53,6 +53,10 @@ func main() {
 }
 
 func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
+	// ignore messages from the bot
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
 
 	// make sure we match our bot's message token
 	if len(m.Content) > 2 {
