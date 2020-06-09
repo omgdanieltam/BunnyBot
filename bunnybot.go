@@ -68,10 +68,22 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 	// awwnime (test)
 	if message == "awwnime" {
 		// get url
-		url := <-get_subreddit_image("awwnime")
+		url := <-get_image("awwnime")
 
 		// print message with url
 		s.ChannelMessageSend(m.ChannelID, url)
+	}
+
+	// other image test
+	if message == "self" {
+		// get url
+		url := <-get_image("self")
+
+		if(len(url) > 0) {
+			s.ChannelMessageSend(m.ChannelID, url)
+		} else {
+			s.ChannelMessageSend(m.ChannelID, "No images found, please try again")
+		}
 	}
 
 	//get_redditbooru("awwnime")

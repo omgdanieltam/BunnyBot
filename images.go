@@ -85,6 +85,41 @@ func build_redditbooru_sources() {
 	}
 }
 
+// search based on the most appropriate location
+func get_image(sub string) <-chan string {
+	// make the channell
+	ret := make(chan string)
+
+	go func() {
+		defer close(ret)
+
+		// setup variable
+		var image string
+		var found bool = false
+
+		// check to see if it is in the redditbooru sources
+		for _,title := range redditbooru_sources {
+			if title == sub {
+				image = <-get_redditbooru_image(sub)
+				found = true
+				ret <- image
+				return
+			}
+		}
+
+
+		// if not in redditbooru, check reddit
+		if found == false {
+			image = <-get_subreddit_image(sub)
+			ret <- image
+			return
+		}
+
+	}()
+
+	return ret
+}
+
 // redditbooru request
 func get_redditbooru_image(sub string) <-chan string{
 	// make the channel
@@ -124,7 +159,7 @@ func get_redditbooru_image(sub string) <-chan string{
 
 		// set the return value
 		ret <- img_url
-		}()
+	}()
 
 	return ret
 }
