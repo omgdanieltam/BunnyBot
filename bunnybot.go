@@ -71,7 +71,7 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// determine our actions
 	if message == "coinflip" || message == "coin" { // flip a coin
-		s.ChannelMessageSend(m.ChannelID, "heads") // totally fair
+		s.ChannelMessageSend(m.ChannelID, "<@" + m.Author.ID + "> flipped a coin, it landed on **heads!**") // totally fair
 	} else if len(message) > 0 { // as long as there is a message, try to find a picture
 		// get url
 		url := <-get_image(message)
