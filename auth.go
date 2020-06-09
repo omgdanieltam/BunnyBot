@@ -17,7 +17,7 @@ type Auth struct {
 }
 
 // build the auth struct
-func buildAuth() {
+func build_auth() {
 	// read the auth json file
 	json, err := ioutil.ReadFile("auth.json")
 	if err != nil {

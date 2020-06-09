@@ -17,7 +17,7 @@ var (
 
 func init() {
 	// build the authentication struct
-	buildAuth()
+	build_auth()
 
 	// build the redditbooru sources slice
 	build_redditbooru_sources()
