@@ -115,6 +115,9 @@ func get_image(sub string) <-chan string {
 			return
 		}
 
+		// nothing found
+		ret <- ""
+
 	}()
 
 	return ret
@@ -260,7 +263,7 @@ func get_subreddit_image(sub string) <-chan string {
 			if hint == "image" || hint == "link" || hint == "rich:video" {
 				image, _ := jsonparser.GetString(out, "data", "children", "[" + strconv.Itoa(random_img) + "]", "data", "url")
 				ret <- image
-				break
+				return
 			}
 		}
 	}()
