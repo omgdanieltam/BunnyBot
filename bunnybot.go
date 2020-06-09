@@ -63,29 +63,20 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// get our message without our bot's token
-	message := m.Content[2:]
+	message := strings.ToLower(m.Content[2:])
 
-	// awwnime (test)
-	if message == "awwnime" {
+	// determine our actions
+	if message == "coinflip" || message == "coin" { // flip a coin
+		s.ChannelMessageSend(m.ChannelID, "heads") // totally fair
+	} else if len(message) > 0 { // as long as there is a message, try to find a picture
 		// get url
-		url := <-get_image("awwnime")
+		url := <-get_image(message)
 
-		// print message with url
-		s.ChannelMessageSend(m.ChannelID, url)
-	}
-
-	// other image test
-	if message == "self" {
-		// get url
-		url := <-get_image("self")
-
-		if(len(url) > 0) {
+		// make sure we have a url returned
+		if len(url) > 0 {
 			s.ChannelMessageSend(m.ChannelID, url)
 		} else {
-			s.ChannelMessageSend(m.ChannelID, "No images found, please try again")
+			s.ChannelMessageSend(m.ChannelID, "I couldn't find that, sauce?")
 		}
 	}
-
-	//get_redditbooru("awwnime")
-
 }
