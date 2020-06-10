@@ -150,9 +150,6 @@ func get_redditbooru_image(sub string) <-chan string{
 			return
 		}
 
-		// randomize the seed for the random int
-		rand.Seed(time.Now().UnixNano())
-
 		// get a random number for the image
 		outlen,err := getArrayLen(out)
 		random_img := rand.Intn(outlen)
@@ -198,9 +195,6 @@ func get_imgur_image(sub string) <-chan string {
 			return
 		}
 
-		// randomize the seed for the random int
-		rand.Seed(time.Now().UnixNano())
-
 		// get a random number for the image
 		//outlen, _ := getArrayLen(out)
 		//random_img := rand.Intn(outlen)
@@ -243,9 +237,6 @@ func get_subreddit_image(sub string) <-chan string {
 			fmt.Println("Error reading response from reddit, ", err)
 			return
 		}
-
-		// randomize the seed for the random int
-		rand.Seed(time.Now().UnixNano())
 
 		// make sure we aren't grabbing a text post by cylcing through looking for an image
 		limit64, _ := jsonparser.GetInt(out, "data", "dist")
