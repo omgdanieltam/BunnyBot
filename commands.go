@@ -6,6 +6,7 @@ package main
 
 import (
 	"math/rand"
+	"strconv"
 )
 
 // flip a coin
@@ -19,4 +20,12 @@ func coinflip(author string) string{
 	} else { // tails
 		return "<@" + author + "> flipped a coin, it landed on **tails!**"
 	}
+}
+
+// roll number
+func roll(author string) string{
+	min := 1
+	max := 100
+	num := rand.Intn(max - min) + min
+	return "<@" + author + "> rolls a number between 1 and 100. They roll **" + strconv.Itoa(num) + "**."
 }
