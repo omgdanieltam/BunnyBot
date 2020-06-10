@@ -30,3 +30,8 @@ func roll(author string) string{
 	num := rand.Intn(max - min) + min
 	return "<@" + author + "> rolls a number between 1 and 100. They roll **" + strconv.Itoa(num) + "**."
 }
+
+// source code
+func source() string {
+	return "BunnyBot is a Discord bot written in Go. You can view the source code here: https://git.dtam.pw/daniel/GoBunnyBot"
+}

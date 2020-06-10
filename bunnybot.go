@@ -79,6 +79,8 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, coinflip(m.Author.ID))
 	} else if message == "roll" {  // roll a number
 		s.ChannelMessageSend(m.ChannelID, roll(m.Author.ID))
+	} else if message == "source" { // print source code
+		s.ChannelMessageSend(m.ChannelID, source())
 	} else if len(message) > 0 { // as long as there is a message, try to find a picture
 		// get url
 		url := <-get_image(message)
