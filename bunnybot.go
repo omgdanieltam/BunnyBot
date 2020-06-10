@@ -65,10 +65,22 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// make sure we match our bot's message token
 	if len(m.Content) > 2 {
+		// get the input token
 		input_token := m.Content[0:2]
-		if strings.ToLower(string(input_token)) != "t." {
+
+		// check if we match our token
+		found := false
+
+		// try to find our token
+		if strings.ToLower(string(input_token)) == "b." || strings.ToLower(string(input_token)) == "//" {
+			found = true
+		}
+
+		// return if this message isn't for us
+		if found == false {
 			return
 		}
+
 	}
 
 	// get our message without our bot's token
