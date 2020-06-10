@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 	"strings"
+	"time"
+	"math/rand"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -16,6 +18,9 @@ var (
 )
 
 func init() {
+	// set the randomized seed
+	rand.Seed(time.Now().UnixNano())
+
 	// build the authentication struct
 	build_auth()
 
