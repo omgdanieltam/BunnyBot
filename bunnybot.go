@@ -83,19 +83,22 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 
-	// get our message without our bot's token
-	message := strings.ToLower(m.Content[2:])
+	// get our message's content without our bot's token
+	content := strings.ToLower(m.Content[2:])
+
+	// split our message's content into parts based on space
+	message := strings.Fields(content)
 
 	// determine our actions
-	if message == "coinflip" || message == "coin" { // flip a coin
+	if message[0] == "coinflip" || message[0] == "coin" { // flip a coin
 		s.ChannelMessageSend(m.ChannelID, coinflip(m.Author.ID))
-	} else if message == "roll" {  // roll a number
+	} else if message[0] == "roll" {  // roll a number
 		s.ChannelMessageSend(m.ChannelID, roll(m.Author.ID))
-	} else if message == "source" { // print source code
+	} else if message[0] == "source" { // print source code
 		s.ChannelMessageSend(m.ChannelID, source())
-	} else if len(message) > 0 { // as long as there is a message, try to find a picture
+	} else if len(message[0]) > 0 { // as long as there is a message, try to find a picture
 		// get url
-		url := <-get_image(message)
+		url := <-get_image(message[0])
 
 		// make sure we have a url returned
 		if len(url) > 0 {
