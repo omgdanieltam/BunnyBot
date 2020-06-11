@@ -250,8 +250,11 @@ func get_subreddit_image(sub string) <-chan string {
 			// check the post hint to see what type of post it is
 			hint, _ := jsonparser.GetString(out, "data", "children", "[" + strconv.Itoa(random_img) + "]", "data", "post_hint")
 
+			// get the domain to also check againist
+			domain, _ := jsonparser.GetString(out, "data", "children", "[" + strconv.Itoa(random_img) + "]", "data", "domain")
+
 			// make sure that it is an image, or at least a gif
-			if hint == "image" || hint == "link" || hint == "rich:video" {
+			if hint == "image" || hint == "link" || hint == "rich:video" || domain == "i.redd.it" || domain == "i.imgur.com" {
 				image, _ := jsonparser.GetString(out, "data", "children", "[" + strconv.Itoa(random_img) + "]", "data", "url")
 				ret <- image
 				return
