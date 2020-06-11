@@ -11,3 +11,5 @@ Restore previous functionality:
  - Add voice commands
 
 Add caching mechanism for images
+
+Add statistics tracking
