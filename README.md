@@ -3,8 +3,8 @@ Rewrite of my Discord bot, BunnyBot, in Go.
 
 Previous version, written in Javascript using Node.js: https://git.dtam.pw/daniel/discord-bot-js
 
-## TO DO
-Restore previous functionality
+## To do
+Restore previous functionality:
  - Allow roll ranges
  - Add 8 ball
  - Add compute
