@@ -90,6 +90,8 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+	} else { // message too short, don't do anything
+		return
 	}
 
 	// get our message's content without our bot's token
