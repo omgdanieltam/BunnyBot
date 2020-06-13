@@ -11,5 +11,6 @@ Restore previous functionality:
  - Add voice commands
 
 ~~Add caching mechanism for images~~
+ - Routely delete cache
 
 Add statistics tracking
