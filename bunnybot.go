@@ -15,6 +15,10 @@ import (
 var (
 	auth Auth
 	redditbooru_sources []string
+
+	// cache settings
+	cache_location string = "cache/"
+	cache_time = 3 * time.Hour // 3 hours
 )
 
 func init() {
@@ -26,6 +30,11 @@ func init() {
 
 	// build the redditbooru sources slice
 	build_redditbooru_sources()
+
+	// attempt to make our cached
+	if _, err := os.Stat(cache_location); os.IsNotExist(err) {
+		os.Mkdir(cache_location, 0777)
+	}
 }
 
 func main() {

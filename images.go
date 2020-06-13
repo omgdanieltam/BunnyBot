@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"os"
 
 	"github.com/buger/jsonparser"
 )
@@ -96,11 +97,36 @@ func get_image(sub string) <-chan string {
 		// setup variable
 		var image string
 		var found bool = false
+		var cache_exists bool = false
+
+		// check if a cached version exists
+		file, err := os.Stat(cache_location + sub)
+		
+		// if it exists, check it's timestamp
+		if !os.IsNotExist(err) {
+			// get the current time
+			currenttime := time.Now()
+
+			// get the file's last modified time
+			modifiedtime := file.ModTime()
+
+			// get the difference in time
+			difftime := currenttime.Sub(modifiedtime)
+
+			// check if it meets our cutoff time
+			if difftime > cache_time {
+				// too old, delete the old file
+				os.Remove(cache_location + sub)
+			} else {
+				// else it's new enough, let it be used later
+				cache_exists = true
+			}
+		}
 
 		// check to see if it is in the redditbooru sources
 		for _,title := range redditbooru_sources {
 			if title == sub {
-				image = <-get_redditbooru_image(sub)
+				image = <-get_redditbooru_image(sub, cache_exists)
 				found = true
 				ret <- image
 				return
@@ -110,7 +136,7 @@ func get_image(sub string) <-chan string {
 
 		// if not in redditbooru, check reddit
 		if found == false {
-			image = <-get_subreddit_image(sub)
+			image = <-get_subreddit_image(sub, cache_exists)
 			ret <- image
 			return
 		}
@@ -124,38 +150,63 @@ func get_image(sub string) <-chan string {
 }
 
 // redditbooru request
-func get_redditbooru_image(sub string) <-chan string{
+func get_redditbooru_image(sub string, cache bool) <-chan string{
 	// make the channel
 	ret := make(chan string)
 
 	go func() {
 		defer close(ret)
 
-		// create the proper url with the subreddit
-		url := "https://" + sub + ".redditbooru.com/images/?limit=1000"
+		// information variable
+		var out []byte
 
-		// set 5 second timeout on request
-		client := http.Client {
-			Timeout: 5 * time.Second,
-		}
+		// if a cached version exists, use that instead
+		if cache == true {
+			// read our cached file
+			outdata, err := ioutil.ReadFile(cache_location + sub)
+			if err != nil {
+				fmt.Println("Error reading from cached reddit file, ", err)
+				return
+			}
 
-		// get the content of the page
-		resp, err := client.Get(url)
-		defer resp.Body.Close()
+			// copy to our info var
+			out = outdata
+		} else {
+			// create the proper url with the subreddit
+			url := "https://" + sub + ".redditbooru.com/images/?limit=1000"
 
-		// read response
-		out, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Println("Error reading response from redditbooru, ", err)
-			return
+			// set 5 second timeout on request
+			client := http.Client {
+				Timeout: 5 * time.Second,
+			}
+
+			// get the content of the page
+			resp, err := client.Get(url)
+			defer resp.Body.Close()
+
+			// read response
+			outdata, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Println("Error reading response from redditbooru, ", err)
+				return
+			}
+
+			// copy to our info var
+			out = outdata
+
+			// attempt to make a cache file, don't do anything if it doesn't get created (who cares?)
+			os.Create(cache_location + sub)
+			var file, _ = os.OpenFile(cache_location + sub, os.O_RDWR, 0777)
+			defer file.Close()
+			file.Write(outdata)
 		}
 
 		// get a random number for the image
-		outlen,err := getArrayLen(out)
+		outlen,_ := getArrayLen(out)
 		random_img := rand.Intn(outlen)
 
 		// select a random url from our list
-		img_url,err := jsonparser.GetString(out, "[" + strconv.Itoa(random_img) + "]", "cdnUrl")
+		img_url,_ := jsonparser.GetString(out, "[" + strconv.Itoa(random_img) + "]", "cdnUrl")
 
 		// set the return value
 		ret <- img_url
@@ -210,33 +261,61 @@ func get_imgur_image(sub string) <-chan string {
 }
 
 // subreddit request
-func get_subreddit_image(sub string) <-chan string {
+func get_subreddit_image(sub string, cache bool) <-chan string {
 	ret := make(chan string)
 
 	go func() {
 		defer close(ret)
 
-		// create the proper url with the subreddit
-		url := "https://www.reddit.com/r/" + sub + "/.json?show=all&limit=100"
+		// information variable
+		var out []byte
 
-		// set 5 second timeout on request
-		client := http.Client {
-			Timeout: 5 * time.Second,
+		// if a cached version exists, use that instead
+		if cache == true {
+			// read our cached file
+			outdata, err := ioutil.ReadFile(cache_location + sub)
+			if err != nil {
+				fmt.Println("Error reading from cached reddit file, ", err)
+				return
+			}
+
+			// copy to our info var
+			out = outdata
+			
+		} else { // else pull it from the web
+			// create the proper url with the subreddit
+			url := "https://www.reddit.com/r/" + sub + "/.json?show=all&limit=100"
+
+			// set 5 second timeout on request
+			client := http.Client {
+				Timeout: 5 * time.Second,
+			}
+
+			req, err := http.NewRequest("GET", url, nil)
+			req.Header.Add("User-Agent", "BunnyBot")
+
+			// get the content of the page
+			resp, err := client.Do(req)
+			defer resp.Body.Close()
+
+			// read response
+			outdata, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				fmt.Println("Error reading response from reddit, ", err)
+				return
+			}
+
+			// copy to our info var
+			out = outdata
+
+			// attempt to make a cache file, don't do anything if it doesn't get created (who cares?)
+			os.Create(cache_location + sub)
+			var file, _ = os.OpenFile(cache_location + sub, os.O_RDWR, 0777)
+			defer file.Close()
+			file.Write(outdata)
 		}
 
-		req, err := http.NewRequest("GET", url, nil)
-		req.Header.Add("User-Agent", "BunnyBot")
-
-		// get the content of the page
-		resp, err := client.Do(req)
-		defer resp.Body.Close()
-
-		// read response
-		out, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Println("Error reading response from reddit, ", err)
-			return
-		}
+		
 
 		// make sure we aren't grabbing a text post by cylcing through looking for an image
 		limit64, _ := jsonparser.GetInt(out, "data", "dist")
