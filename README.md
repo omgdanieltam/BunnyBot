@@ -10,6 +10,6 @@ Restore previous functionality:
  - Add compute
  - Add voice commands
 
-Add caching mechanism for images
+~~Add caching mechanism for images~~
 
 Add statistics tracking
