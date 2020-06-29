@@ -12,5 +12,6 @@ Restore previous functionality:
 
 ~~Add caching mechanism for images~~
  - Routely delete cache
+ - Make sure same image isn't repeated for x amount of time
 
 Add statistics tracking
