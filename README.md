@@ -16,3 +16,6 @@ Restore previous functionality:
  - Add ability to make coinflip with options to replace heads/tails
 
 Add statistics tracking
+
+## Building standalone
+Instructions for myself on how to build this for an Alpine Linux container: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build bunnybot.go commands.go images.go auth.go
