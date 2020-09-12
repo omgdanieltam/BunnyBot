@@ -102,7 +102,7 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// determine our actions
 	if message[0] == "coinflip" || message[0] == "coin" { // flip a coin
-		s.ChannelMessageSend(m.ChannelID, coinflip(m.Author.ID))
+		s.ChannelMessageSend(m.ChannelID, coinflip(m.Author.ID, content))
 	} else if message[0] == "roll" {  // roll a number
 		s.ChannelMessageSend(m.ChannelID, roll(m.Author.ID))
 	} else if message[0] == "source" { // print source code
