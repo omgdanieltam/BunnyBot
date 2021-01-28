@@ -107,9 +107,9 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, roll(m.Author.ID))
 	} else if message[0] == "source" { // print source code
 		s.ChannelMessageSend(m.ChannelID, source())
-	} else if message[0] == "retarded" {
+	} else if message[0] == "retarded" { // retarded youtube video
 		s.ChannelMessageSend(m.ChannelID, "https://youtu.be/kav7tifmyTg")
-	} else if message[0] == "moon" {
+	} else if message[0] == "moon" { // wsb moon stock ticker copypasta
 		s.ChannelMessageSend(m.ChannelID, moon(content)) // print moon text
 	} else if len(message[0]) > 0 { // as long as there is a message, try to find a picture
 		// get url
