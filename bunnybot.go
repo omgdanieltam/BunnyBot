@@ -107,6 +107,8 @@ func message_create (s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, roll(m.Author.ID))
 	} else if message[0] == "source" { // print source code
 		s.ChannelMessageSend(m.ChannelID, source())
+	} else if message[0] == "retarded" {
+		s.ChannelMessageSend(m.ChannelID, "https://youtu.be/kav7tifmyTg")
 	} else if len(message[0]) > 0 { // as long as there is a message, try to find a picture
 		// get url
 		url := <-get_image(message[0])
