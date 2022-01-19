@@ -14,7 +14,6 @@ import (
 
 var (
 	auth Auth
-	redditbooru_sources []string
 
 	// cache settings
 	cache_location string = "cache/"
@@ -27,9 +26,6 @@ func init() {
 
 	// build the authentication struct
 	build_auth()
-
-	// build the redditbooru sources slice
-	build_redditbooru_sources()
 
 	// attempt to make our cached
 	if _, err := os.Stat(cache_location); os.IsNotExist(err) {

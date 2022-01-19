@@ -11,7 +11,6 @@ import (
 	"math/rand"
 	"fmt"
 	"strconv"
-	"strings"
 	"os"
 
 	"github.com/buger/jsonparser"
@@ -45,47 +44,6 @@ func getObjectLen(value []byte) (int, error) {
 	return ret, nil
 }
 
-// build our sources list for redditbooru
-func build_redditbooru_sources() {
-	// the url for the sources from redditbooru
-	url := "https://redditbooru.com/sources/"
-
-	// set 5 second timeout on request
-	client := http.Client {
-		Timeout: 5 * time.Second,
-	}
-
-	// get the content of the page
-	resp, err := client.Get(url)
-	if err != nil {
-		fmt.Print("Error getting redditbooru sources, ")
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	// read response
-	out, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Print("Error reading response from redditbooru, ")
-		panic(err)
-	}
-
-	// get the length of the sources
-	outlen, err := getArrayLen(out)
-
-	// set our slice to the appropriate size
-	redditbooru_sources = make([]string, outlen)
-
-	// set our sources into the slice
-	for i := 0; i < outlen; i++ {
-		// pull out the title
-		title,_ := jsonparser.GetString(out, "[" + strconv.Itoa(i) + "]", "title")
-
-		// set to lowercase then into our slice
-		redditbooru_sources[i] = strings.ToLower(title)
-	}
-}
-
 // search based on the most appropriate location
 func get_image(sub string) <-chan string {
 	// make the channell
@@ -96,7 +54,6 @@ func get_image(sub string) <-chan string {
 
 		// setup variable
 		var image string
-		var found bool = false
 		var cache_exists bool = false
 
 		// check if a cached version exists
@@ -123,93 +80,15 @@ func get_image(sub string) <-chan string {
 			}
 		}
 
-		// check to see if it is in the redditbooru sources
-		for _,title := range redditbooru_sources {
-			if title == sub {
-				image = <-get_redditbooru_image(sub, cache_exists)
-				found = true
-				ret <- image
-				return
-			}
-		}
+		// check reddit
+		image = <-get_subreddit_image(sub, cache_exists)
+		ret <- image
+		return
 
-
-		// if not in redditbooru, check reddit
-		if found == false {
-			image = <-get_subreddit_image(sub, cache_exists)
-			ret <- image
-			return
-		}
 
 		// nothing found
 		ret <- ""
 
-	}()
-
-	return ret
-}
-
-// redditbooru request
-func get_redditbooru_image(sub string, cache bool) <-chan string{
-	// make the channel
-	ret := make(chan string)
-
-	go func() {
-		defer close(ret)
-
-		// information variable
-		var out []byte
-
-		// if a cached version exists, use that instead
-		if cache == true {
-			// read our cached file
-			outdata, err := ioutil.ReadFile(cache_location + sub)
-			if err != nil {
-				fmt.Println("Error reading from cached reddit file, ", err)
-				return
-			}
-
-			// copy to our info var
-			out = outdata
-		} else {
-			// create the proper url with the subreddit
-			url := "https://" + sub + ".redditbooru.com/images/?limit=1000"
-
-			// set 5 second timeout on request
-			client := http.Client {
-				Timeout: 5 * time.Second,
-			}
-
-			// get the content of the page
-			resp, err := client.Get(url)
-			defer resp.Body.Close()
-
-			// read response
-			outdata, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				fmt.Println("Error reading response from redditbooru, ", err)
-				return
-			}
-
-			// copy to our info var
-			out = outdata
-
-			// attempt to make a cache file, don't do anything if it doesn't get created (who cares?)
-			os.Create(cache_location + sub)
-			var file, _ = os.OpenFile(cache_location + sub, os.O_RDWR, 0777)
-			defer file.Close()
-			file.Write(outdata)
-		}
-
-		// get a random number for the image
-		outlen,_ := getArrayLen(out)
-		random_img := rand.Intn(outlen)
-
-		// select a random url from our list
-		img_url,_ := jsonparser.GetString(out, "[" + strconv.Itoa(random_img) + "]", "cdnUrl")
-
-		// set the return value
-		ret <- img_url
 	}()
 
 	return ret
