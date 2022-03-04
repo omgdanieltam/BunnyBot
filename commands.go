@@ -47,7 +47,7 @@ func roll(author string) string{
 
 // source code
 func source() string {
-	return "BunnyBot is a Discord bot written in Go. You can view the source code here: https://git.dtam.pw/daniel/GoBunnyBot"
+	return "BunnyBot is a Discord bot written in Go. You can view the source code here: https://github.com/omgdanieltam/BunnyBot"
 }
 
 // moon command
